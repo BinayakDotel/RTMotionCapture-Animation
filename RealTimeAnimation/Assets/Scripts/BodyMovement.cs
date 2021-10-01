@@ -59,6 +59,7 @@ public class BodyMovement : MonoBehaviour
 	}
 	public enum BoneRendererIndex : int
 	{
+		PELVIC = 0,
 		NOSE_TIP = 44,
 		LEFT_SHOULDER = 21,
 		RIGHT_SHOULDER = 51,
@@ -70,10 +71,11 @@ public class BodyMovement : MonoBehaviour
 		RIGHT_WRIST = 54,
 		LEFT_HIP = 1,
 		RIGHT_HIP = 7,
+		HIP_ROTATE = 71,
 		LEFT_ANKLE = 3,
 		RIGHT_ANKLE = 9,
 		LEFT_FOOT = 4,
-		RIGHT_FOOT = 11,
+		RIGHT_FOOT = 11
 	}
 	public void Awake()
 	{
@@ -122,6 +124,33 @@ public class BodyMovement : MonoBehaviour
 		boneRenderer.Bone[(int)BoneRendererIndex.NOSE_TIP].rotation = Quaternion.RotateTowards(currentRotationOfUpperRightLeg,
 			wantedRotationOfUpperRightLeg, Time.deltaTime * smooth);
 	}
+	public void HandControl(string name, Vector3 pos, int index)
+	{
+		print("HAND CONTROL");
+
+		if (name == "LEFT_WRIST" || name == "RIGHT_WRIST")
+		{
+			if (pos.y < 0.25)
+				moveSensitivity[index].y = 4;
+
+			else if (pos.y >= 0.25 && pos.y <= 0.35)
+				moveSensitivity[index].y = 2;
+
+			else
+				moveSensitivity[index].y = -2;
+		}
+		MovingPoints[index].position = Vector3.Lerp(MovingPoints[index].position,
+						new Vector3(pos.x * moveSensitivity[index].x,
+									pos.y * moveSensitivity[index].y,
+									pos.z * moveSensitivity[index].z), smooth);
+
+		MovingPoints[(int)BoneIndex.LEFT_WRIST_ROT].rotation = boneRenderer.Bone[(int)BoneRendererIndex.LEFT_ELBOW].transform.rotation;
+		MovingPoints[(int)BoneIndex.RIGHT_WRIST_ROT].rotation = boneRenderer.Bone[(int)BoneRendererIndex.RIGHT_ELBOW].transform.rotation;
+
+		MovingPoints[(int)BoneIndex.LEFT_SHOULDER].rotation = boneRenderer.Bone[(int)BoneRendererIndex.LEFT_ARM].transform.rotation;
+		MovingPoints[(int)BoneIndex.RIGHT_SHOULDER].rotation = boneRenderer.Bone[(int)BoneRendererIndex.RIGHT_ARM].transform.rotation;
+
+	}
 	public void LegControl(Vector3 pos, int index, string name, bool rotateFoot)
 	{
 		print("LEG CONTROL");
@@ -156,80 +185,33 @@ public class BodyMovement : MonoBehaviour
 	}
 	public void HipControl(string name, Vector3 pos, int index)
 	{
-
-		/*MovingPoints[index].position = Vector3.Lerp(MovingPoints[index].position,
+		Transform Hip = null;
+		MovingPoints[index].position = Vector3.Lerp(MovingPoints[index].position,
 					new Vector3(pos.x * moveSensitivity[index].x,
 								pos.y * moveSensitivity[index].y,
 								pos.z * moveSensitivity[index].z), smooth);
 		if (name == "LEFT_HIP")
 		{
+			Hip = boneRenderer.Bone[(int)BoneRendererIndex.LEFT_HIP];
 			index = (int)BoneIndex.LEFT_HIP;
-			rot_angle[index] = Mathf.Atan((LHipInitialPos.x - pos.x) / (LHipInitialPos.y - pos.y)) * 180 / Mathf.PI;
 		}
 		if (name == "RIGHT_HIP")
 		{
+			Hip = boneRenderer.Bone[(int)BoneRendererIndex.RIGHT_HIP];
 			index = (int)BoneIndex.RIGHT_HIP;
-			rot_angle[index] = Mathf.Atan((RHipInitialPos.x - pos.x) / (RightLegInitialPos.y - pos.y)) * 180 / Mathf.PI;
 		}
+		
+		float rot = Mathf.Atan((Hip.position.x - pos.x) / (Hip.position.y - pos.y)) * 180 / Mathf.PI;
 
 		Quaternion currentRotation = MovingPoints[index].transform.rotation;
-		Quaternion wantedRotation = Quaternion.Euler(new Vector3(rot_angle[index], 0, 0));
+		Quaternion wantedRotation = Quaternion.Euler(new Vector3(0, rot, 0));
 
-		if (name == "LEFT_HIP")
-		{
-			Hip.rotation = Quaternion.RotateTowards(currentRotation,
+		boneRenderer.Bone[(int)BoneRendererIndex.HIP_ROTATE].rotation = Quaternion.RotateTowards(currentRotation,
 				wantedRotation, Time.deltaTime * smooth);
-		}
-		if (name == "RIGHT_HIP")
-		{
-			Hip.rotation = Quaternion.RotateTowards(currentRotation,
-				wantedRotation, Time.deltaTime * smooth);
-		}*/
 
 		print("HIP CONTROl");
 	}
-	public void HandControl(string name, Vector3 pos, int index)
-	{
-		print("HAND CONTROL");
 
-		if (name == "LEFT_WRIST" || name == "RIGHT_WRIST")
-		{
-			if (pos.y < 0.25)
-				moveSensitivity[index].y = 4;
-
-			else if (pos.y >= 0.25 && pos.y <= 0.35)
-				moveSensitivity[index].y = 2;
-
-			else
-				moveSensitivity[index].y = -2;
-		}
-		MovingPoints[index].position = Vector3.Lerp(MovingPoints[index].position,
-						new Vector3(pos.x * moveSensitivity[index].x,
-									pos.y * moveSensitivity[index].y,
-									pos.z * moveSensitivity[index].z), smooth);
-
-		MovingPoints[(int)BoneIndex.LEFT_WRIST_ROT].rotation = boneRenderer.Bone[(int)BoneRendererIndex.LEFT_ELBOW].transform.rotation;
-		MovingPoints[(int)BoneIndex.RIGHT_WRIST_ROT].rotation = boneRenderer.Bone[(int)BoneRendererIndex.RIGHT_ELBOW].transform.rotation;
-
-		MovingPoints[(int)BoneIndex.LEFT_SHOULDER].rotation = boneRenderer.Bone[(int)BoneRendererIndex.LEFT_ARM].transform.rotation;
-		MovingPoints[(int)BoneIndex.RIGHT_SHOULDER].rotation = boneRenderer.Bone[(int)BoneRendererIndex.RIGHT_ARM].transform.rotation;
-
-		/*Quaternion currentRotation = MovingPoints[(int)BoneIndex.LEFT_WRIST_ROT].transform.rotation;
-		Quaternion wantedRotation = Quaternion.Euler(new Vector3(boneRenderer.transforms[(int)BoneRendererIndex.LEFT_ELBOW].transform.rotation.x * 5,
-																boneRenderer.transforms[(int)BoneRendererIndex.LEFT_ELBOW].transform.rotation.y *5,
-																boneRenderer.transforms[(int)BoneRendererIndex.LEFT_ELBOW].transform.rotation.z * 5));
-
-		MovingPoints[(int)BoneIndex.LEFT_WRIST_ROT].transform.rotation = Quaternion.RotateTowards(currentRotation,
-				wantedRotation, Time.deltaTime * smooth);
-
-		currentRotation = MovingPoints[(int)BoneIndex.RIGHT_WRIST_ROT].transform.rotation;
-		wantedRotation = Quaternion.Euler(new Vector3(boneRenderer.transforms[(int)BoneRendererIndex.RIGHT_ELBOW].transform.rotation.x * 5,
-																boneRenderer.transforms[(int)BoneRendererIndex.RIGHT_ELBOW].transform.rotation.y *  5,
-																boneRenderer.transforms[(int)BoneRendererIndex.RIGHT_ELBOW].transform.rotation.z * 5));
-
-		MovingPoints[(int)BoneIndex.RIGHT_WRIST_ROT].transform.rotation = Quaternion.RotateTowards(currentRotation,
-				wantedRotation, Time.deltaTime * smooth);*/
-	}
 
 	// Update is called once per frame
 	void Update()

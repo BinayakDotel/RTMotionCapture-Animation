@@ -27,7 +27,7 @@ public class Server : MonoBehaviour
 	{
 		bm = BodyMovement.Instance;
 
-		UIUpdate("Start Server", true);
+		UIUpdate("Start Server", true, false);
 	}
 	public void EstablishCommunication()
 	{
@@ -42,7 +42,7 @@ public class Server : MonoBehaviour
 		message = "received!";
 		ThreadStart threadStart = new ThreadStart(StartCommunicate);
 
-		UIUpdate("running...", false);
+		UIUpdate("Running...", false, false);
 
 		clientThread = new Thread(threadStart);
 		clientThread.Start();
@@ -82,17 +82,21 @@ public class Server : MonoBehaviour
 		StopServer();
 		Application.Quit();
 	}
-	public void UIUpdate(string msg, bool show)
+	public void UIUpdate(string msg, bool show01, bool show02)
 	{
-		serverStatus[0].interactable = show;
+		serverStatus[0].interactable = show01;
 		serverStatus[0].GetComponentInChildren<Text>().text = msg;
-		serverStatus[1].gameObject.SetActive(!show);
+		serverStatus[1].gameObject.SetActive(show02);
 	}
 	public void Update()
 	{
+		if (bm.running)
+		{
+			UIUpdate("Running...", false, true);
+		}
 		if(message == "stop")
 		{
-			UIUpdate("Start Server", true);
+			UIUpdate("Start Server", true, false);
 		}
 	}
 	public void DataTransfer()
