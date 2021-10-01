@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Animate : MonoBehaviour
+/*public class Animate : MonoBehaviour
 {
     [Header("Spine")]
     public GameObject Spine;
@@ -64,7 +64,7 @@ public class Animate : MonoBehaviour
 
     }
     public void Update()
-    {
+    {*/
         /*Spine.transform.position = Vector3.Lerp(Spine.transform.position, 
             SpinePosEndPoint, smooth_move * Time.deltaTime);
         
@@ -89,7 +89,7 @@ public class Animate : MonoBehaviour
         UpperLeftLeg.transform.rotation = Quaternion.RotateTowards(currentRotationOfUpperLeftLeg,
             wantedRotationOfUpperLeftLeg, Time.deltaTime * smooth_rot);*/
 
-        Quaternion currentRotationOfUpperRightLeg = UpperRightLeg.transform.rotation;
+        /*Quaternion currentRotationOfUpperRightLeg = UpperRightLeg.transform.rotation;
         Quaternion wantedRotationOfUpperRightLeg = Quaternion.Euler(UpperRightLegRotEndPoint);
         UpperRightLeg.transform.rotation = Quaternion.RotateTowards(currentRotationOfUpperRightLeg,
             wantedRotationOfUpperRightLeg, Time.deltaTime * smooth_rot);
@@ -121,3 +121,4 @@ public class Animate : MonoBehaviour
         }
     }
 }
+*/

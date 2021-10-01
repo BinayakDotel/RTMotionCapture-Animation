@@ -19,7 +19,7 @@ public class PythonExample : MonoBehaviour {
         engine.SetSearchPaths(searchPaths);
 
         dynamic py = engine.ExecuteFile(Application.dataPath + @"\Scripts\PythonScripts\greeter.py");
-        dynamic greeter = py.Greeter("Binayak");
-        print($"HELLO::{greeter.greet()}");
+        //dynamic greeter = py.Greeter("Binayak");
+        //print($"HELLO::{greeter.greet()}");
     }
 }
