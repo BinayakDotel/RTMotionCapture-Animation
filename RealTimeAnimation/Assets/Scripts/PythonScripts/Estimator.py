@@ -20,7 +20,9 @@ class Estimator:
             27: "LEFT_ANKLE",  # 9
             28: "RIGHT_ANKLE",  # 10
             31: "LEFT_FOOT",  # 11
-            32: "RIGHT_FOOT"  # 12
+            32: "RIGHT_FOOT",  # 12
+            7: "LEFT_EAR", #13
+            8: "RIGHT_EAR" #14
         }
         self.keypoints = [
             {
@@ -75,10 +77,18 @@ class Estimator:
                 "name": "RIGHT_FOOT",
                 "x": 1.1, "y": 2.4
             },
+            {
+                "name": "LEFT_EAR",
+                "x": 1.0, "y": 5.5
+            },
+            {
+                "name": "RIGHT_EAR",
+                "x": 1.1, "y": 2.4
+            },
         ]
         self.s = socket.socket()  # Create a socket object
         host = socket.gethostname()  # Get local machine name
-        port = 9000  # Reserve a port for your service.
+        port = 9001  # Reserve a port for your service.
         self.s.connect((host, port))
         self.connection = True
 
@@ -90,6 +100,8 @@ class Estimator:
         self.joint = {}
         try:
             self.cap = cv.VideoCapture(video_path)
+            #self.cap = cv.VideoCapture(0)
+            #self.cap.open(video_path)
             self.ptime = 0
             print("Camera SetUp Success")
         except:
@@ -99,7 +111,7 @@ class Estimator:
             time.sleep = 0.5
             success, self.frame = self.cap.read()
 
-            self.frame = self.resizeImage(self.frame, 40)
+            self.frame = self.resizeImage(self.frame, 40, 50)
             results = self.pose.process(self.frame)
 
             ctime = time.time()
@@ -146,7 +158,10 @@ class Estimator:
 
                         if xdiff > 0.09 or ydiff > 0.09 or zdiff > 0.09:
                             if lm.visibility > 0.8:
-                                print(f'Push Value::{value}--diff::{xdiff},{ydiff},{zdiff}')
+                                index=1
+                                if index%3==0:
+                                    print(f'Push Value::{value}--diff::{xdiff},{ydiff},{zdiff}')
+                                    index=index+1
                                 # self.firebaseAccess.SendData(value, lm.x, lm.y, lm.z)
 
                     for i in range(0, len(self.key_points)):
@@ -156,9 +171,9 @@ class Estimator:
                             self.keypoints[i]["z"] = lm.z
                             print(f"{value} (x:{lm.x}, y:{lm.y}, z:{lm.z})")
 
-    def resizeImage(self, image, scalefactor=50):
-        width = int(image.shape[1] * scalefactor / 100)
-        height = int(image.shape[0] * scalefactor / 100)
+    def resizeImage(self, image, widthScale= 50, heightScale= 50):
+        width = int(image.shape[1] * widthScale / 100)
+        height = int(image.shape[0] * heightScale / 100)
         dim = (width, height)
         image = cv.resize(image, dim, interpolation=cv.INTER_AREA)
         return image
@@ -175,4 +190,5 @@ class Estimator:
 
 if __name__ == "__main__":
     print("PLEASE")
-    video = Estimator("Videos/Video01.mp4")
+    video = Estimator("Videos/Video04.mp4")
+    #video = Estimator("http://192.168.1.175:8080/video")

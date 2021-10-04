@@ -21,23 +21,16 @@ public class Server : MonoBehaviour
 
 	[SerializeField] Button[] serverStatus;
 
-	[SerializeField] BodyMovement bm;
+	[SerializeField] BodyMovement bodyMovement;
 
 	public void Awake()
 	{
-		bm = BodyMovement.Instance;
+		bodyMovement = BodyMovement.Instance;
 
 		UIUpdate("Start Server", true, false);
 	}
 	public void EstablishCommunication()
 	{
-		Process process = new Process();
-		process.StartInfo.FileName = "cmd.exe";
-		process.StartInfo.CreateNoWindow = true;
-		process.StartInfo.RedirectStandardInput = true;
-		process.StartInfo.UseShellExecute = false;
-		process.StartInfo.RedirectStandardOutput = true;
-		process.Start();
 
 		message = "received!";
 		ThreadStart threadStart = new ThreadStart(StartCommunicate);
@@ -53,17 +46,14 @@ public class Server : MonoBehaviour
 
 		listener = new TcpListener(IPAddress.Any, port);
 
-		listener.Start(); 
-
-		print("RUNNING...");
-
+		listener.Start();
 		client = listener.AcceptTcpClient();
-		bm.running = true;
 
-		while (bm.running)
+		bodyMovement.running = true;
+
+		while (bodyMovement.running)
 		{
 			DataTransfer();
-			print("DATA TRANSFER");
 		}
 		listener.Stop();
 		StopServer();
@@ -71,10 +61,10 @@ public class Server : MonoBehaviour
 	}
 	public void StopServer()
 	{
-		if (bm.running)
+		if (bodyMovement.running)
 		{
 			message = "stop";
-			bm.running = false;
+			bodyMovement.running = false;
 		}
 	}
 	public void Quit()
@@ -90,7 +80,7 @@ public class Server : MonoBehaviour
 	}
 	public void Update()
 	{
-		if (bm.running)
+		if (bodyMovement.running)
 		{
 			UIUpdate("Running...", false, true);
 		}
@@ -112,8 +102,8 @@ public class Server : MonoBehaviour
 		{
 			//print($"RECEIVED DATA::{data}");
 			try
-			{				
-				bm.ReceivedJoints= JsonHelper.FromJson<BodyMovement.KeyPoints>(data);
+			{
+				bodyMovement.ReceivedJoints= JsonHelper.FromJson<BodyMovement.KeyPoints>(data);
 				byte[] writeBuffer = Encoding.ASCII.GetBytes(message);
 				stream.Write(writeBuffer, 0, writeBuffer.Length);
 			}
@@ -122,7 +112,7 @@ public class Server : MonoBehaviour
 				if (data.Equals("stop"))
 				{
 					message = "stop";
-					bm.running = false;
+					bodyMovement.running = false;
 				}
 			}
 		}
