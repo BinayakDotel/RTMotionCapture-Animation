@@ -83,6 +83,7 @@ public class BodyMovement : MonoBehaviour
 		RIGHT_ANKLE = 9,
 		LEFT_FOOT = 4,
 		RIGHT_FOOT = 11,
+		BODY = 74
 	}
 	public void Awake()
 	{
@@ -137,13 +138,25 @@ public class BodyMovement : MonoBehaviour
 		if (name == "RIGHT_WRIST" || name == "LEFT_WRIST")
 		{
 			if (pos.y < 0.2)
-				moveSensitivity[index].y = 4;
+			{
+				moveSensitivity[index] = Vector3.Lerp(moveSensitivity[index], new Vector3(moveSensitivity[index].x, 4, 1.8f), smooth);
+				//moveSensitivity[index].z = 1.8f;
+			}
 
 			else if (pos.y >= 0.2 && pos.y <= 0.40)
-				moveSensitivity[index].y = 2;
+			{
+				moveSensitivity[index] = Vector3.Lerp(moveSensitivity[index], new Vector3(moveSensitivity[index].x, 1.5f, 1.5f), smooth);
+				//moveSensitivity[index].y = 1.5f;
+				//moveSensitivity[index].z = 1.5f;
+			}
 
 			else if (pos.y > 0.40)
-				moveSensitivity[index].y = -2;
+			{
+				moveSensitivity[index] = Vector3.Lerp(moveSensitivity[index], new Vector3(moveSensitivity[index].x, -2, 1.2f), smooth);
+
+				//moveSensitivity[index].y = -2;
+				//moveSensitivity[index].z = 1.2f;
+			}
 		}
 		MovingPoints[index].position = Vector3.Lerp(MovingPoints[index].position,
 						new Vector3(pos.x * moveSensitivity[index].x,
@@ -209,8 +222,6 @@ public class BodyMovement : MonoBehaviour
 
 			boneRenderer.Bone[(int)BoneRendererIndex.HIP_ROTATE].position = Vector3.Lerp(boneRenderer.Bone[(int)BoneRendererIndex.HIP_ROTATE].position,
 						new Vector3(x, y, z), smooth);
-
-			float rot = Mathf.Atan((boneRenderer.Bone[(int)BoneRendererIndex.HIP_ROTATE].position.x - pos.x) / (boneRenderer.Bone[(int)BoneRendererIndex.HIP_ROTATE].position.y - pos.y)) * 180 / Mathf.PI;
 
 			//Quaternion currentRotation = Quaternion.Euler(Vector3.zero);
 			//Quaternion wantedRotation = Quaternion.Euler(new Vector3(0, rot, 0));

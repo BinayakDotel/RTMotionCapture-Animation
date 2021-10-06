@@ -92,6 +92,7 @@ class Estimator:
         self.s.connect((host, port))
         self.connection = True
 
+
         self.path = video_path
 
         self.mPose = mp.solutions.pose
@@ -99,9 +100,16 @@ class Estimator:
         self.pose = self.mPose.Pose()
         self.joint = {}
         try:
-            self.cap = cv.VideoCapture(video_path)
-            #self.cap = cv.VideoCapture(0)
-            #self.cap.open(video_path)
+            choice = self.s.recv(1024).decode()
+            print(f"GOT::{choice}")
+            if choice == "0":
+                self.cap = cv.VideoCapture(0)	#For WebCam Capture
+                w,h = 120,150
+            
+            elif choice == "1":
+                self.cap = cv.VideoCapture(video_path)
+                w,h= 40,40
+            #self.cap.open(video_path) 	#For IPWebCam Capture
             self.ptime = 0
             print("Camera SetUp Success")
         except:
@@ -111,7 +119,7 @@ class Estimator:
             time.sleep = 0.5
             success, self.frame = self.cap.read()
 
-            self.frame = self.resizeImage(self.frame, 40, 50)
+            self.frame = self.resizeImage(self.frame, w, h)
             results = self.pose.process(self.frame)
 
             ctime = time.time()
@@ -190,5 +198,6 @@ class Estimator:
 
 if __name__ == "__main__":
     print("PLEASE")
-    video = Estimator("Videos/Video04.mp4")
+    video = Estimator("Videos/Video08.mp4")
     #video = Estimator("http://192.168.1.175:8080/video")
+    #video = Estimator("http://192.168.137.167:8080//video")

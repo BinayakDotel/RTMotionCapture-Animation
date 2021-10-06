@@ -13,13 +13,18 @@ public class Server : MonoBehaviour
 {
 	Thread clientThread;
 	[SerializeField] string ip = "192.168.1.1";
-	[SerializeField] int port = 8000;
+	[SerializeField] int port = 9001;
 	[SerializeField] IPAddress ipAddress;
 	[SerializeField] TcpListener listener;
 	[SerializeField] TcpClient client;
 	[SerializeField] string message;
+	[SerializeField] string choice = "0";
+	[SerializeField] string stopMsg;
 
 	[SerializeField] Button[] serverStatus;
+	[SerializeField] GameObject[] statusPanel;
+
+	NetworkStream stream;
 
 	[SerializeField] BodyMovement bodyMovement;
 
@@ -27,7 +32,7 @@ public class Server : MonoBehaviour
 	{
 		bodyMovement = BodyMovement.Instance;
 
-		UIUpdate("Start Server", true, false);
+		UIUpdate("Start Server", true, false, true);
 	}
 	public void EstablishCommunication()
 	{
@@ -35,7 +40,7 @@ public class Server : MonoBehaviour
 		message = "received!";
 		ThreadStart threadStart = new ThreadStart(StartCommunicate);
 
-		UIUpdate("Running...", false, false);
+		UIUpdate("Running...", false, false, false);
 
 		clientThread = new Thread(threadStart);
 		clientThread.Start();
@@ -48,6 +53,10 @@ public class Server : MonoBehaviour
 
 		listener.Start();
 		client = listener.AcceptTcpClient();
+
+		stream = client.GetStream();
+		byte[] writeBuffer = Encoding.ASCII.GetBytes(choice);
+		stream.Write(writeBuffer, 0, writeBuffer.Length);
 
 		bodyMovement.running = true;
 
@@ -64,6 +73,7 @@ public class Server : MonoBehaviour
 		if (bodyMovement.running)
 		{
 			message = "stop";
+			stopMsg = "stoppedServer";
 			bodyMovement.running = false;
 		}
 	}
@@ -72,26 +82,54 @@ public class Server : MonoBehaviour
 		StopServer();
 		Application.Quit();
 	}
-	public void UIUpdate(string msg, bool show01, bool show02)
+	public void UIUpdate(string msg, bool startShow, bool stopShow, bool showChoice)
 	{
-		serverStatus[0].interactable = show01;
-		serverStatus[0].GetComponentInChildren<Text>().text = msg;
-		serverStatus[1].gameObject.SetActive(show02);
+		if (showChoice)
+		{
+			print("ACTIVATE CHOICE");
+			statusPanel[0].SetActive(false);
+			statusPanel[1].SetActive(true);
+		}
+		if(!showChoice)
+		{
+			print("ACTIVATE SERVER PANEL");
+			statusPanel[0].SetActive(true);
+			statusPanel[1].SetActive(false);
+
+			serverStatus[0].interactable = startShow;
+			serverStatus[0].GetComponentInChildren<Text>().text = msg;
+			serverStatus[1].gameObject.SetActive(stopShow);
+		}
 	}
 	public void Update()
 	{
 		if (bodyMovement.running)
 		{
-			UIUpdate("Running...", false, true);
+			UIUpdate("Running...", false, true, false);
 		}
-		if(message == "stop")
+		if(stopMsg == "stoppedServer")
 		{
-			UIUpdate("Start Server", true, false);
+			UIUpdate("Start Server", true, false, true);
+			stopMsg = "";
 		}
+	}
+	public void ShowStart(string ch)
+	{
+		if(ch == "0")
+		{
+			print("WEB CAM ACTIVATED");
+			choice = "0";
+		}
+		else if (ch == "1")
+		{
+			print("Video ACTIVATED");
+			choice = "1";
+		}
+		UIUpdate("Start Server", true, false, false);
 	}
 	public void DataTransfer()
 	{
-		NetworkStream stream = client.GetStream();
+		stream = client.GetStream();
 		byte[] buffer = new byte[client.ReceiveBufferSize];
 
 		//receive data from host
